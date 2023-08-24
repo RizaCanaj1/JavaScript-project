@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+    <title>WeatherViewer | News</title>
+</head>
+<body>
+    <header></header>
+    <div class="container">
+        <div class="heading d-flex align-items-center justify-content-between">
+            <i class="fa-solid fa-bookmark fa-xl"></i> 
+            <div id="button"></div>
+        </div>
+        <div class="news">Loading...</div>
+        <div class="control">
+            <i class="fa-solid fa-caret-left fa-xl" id="previous" onclick="previous()"></i>
+            <p></p>
+            <i class="fa-solid fa-caret-right fa-xl" id="next" onclick="next()"></i>
+        </div>
+    </div>
+
+    <!--Script Header-->
+    <script type="module">
+        import {head} from './components/header.js'
+        document.querySelector('header').innerHTML= head()
+    </script>
+    <!--Additional Script-->
+    <script src="./components/api-s.js"></script>
+    <script src="https://kit.fontawesome.com/51d87a716e.js" crossorigin="anonymous"></script>
+    <script src="./node_modules/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+    <script>
+        if(!localStorage.getItem('Load Income')){
+            localStorage.setItem('Load Income','Latest News')
+        }
+        let load_income
+        if(localStorage.getItem('Load Income')=='Latest News'){
+            load_income=true
+        }
+        else{
+            load_income=false
+        }
+        
+        load_news_income()
+        function load_news_income(){
+            document.querySelector('#button').innerHTML=`
+            <div class="read-news">
+                <button class="btn btn-outline-primary me-4" onclick="${(load_income)?'from_saved()':'from_news()'}">Load from : ${(load_income)?'Saved News':'Latest News'}</button>
+            </div>
+            `
+        }
+        
+        function from_news(){
+            localStorage.setItem('Load Income','Latest News')
+            load_income=true
+            load_news_income()
+            window.location.reload()
+        }
+        function from_saved(){
+            localStorage.setItem('Load Income','Saved News')
+            load_income=false
+            load_news_income()
+            window.location.reload()
+        }
+        control_icons_fixer()
+        function previous(){
+            if(document.querySelector('.control p').innerHTML>1){
+                if(localStorage.getItem('Load Income')=='Latest News'){
+                    localStorage.setItem('selected',localStorage.getItem('selected')-1)
+                }
+                else{
+                    localStorage.setItem('saved_selected',localStorage.getItem('saved_selected')-1)
+                }
+                window.location.reload()
+            }
+        }
+        function next(){
+            if(document.querySelector('.control p').innerHTML<10){
+                if(localStorage.getItem('Load Income')=='Latest News'){
+                    localStorage.setItem('selected',`${parseInt(localStorage.getItem('selected'))+1}`)
+                }
+                else{
+                    localStorage.setItem('saved_selected',`${parseInt(localStorage.getItem('saved_selected'))+1}`)
+                }
+                window.location.reload()
+            }
+            
+        }
+       
+        function control_icons_fixer(){
+            if(localStorage.getItem('Load Income')=='Latest News'){
+                if(localStorage.getItem('selected')<=0){
+                localStorage.setItem('selected',0)
+                }
+                if(localStorage.getItem('selected')>=9){
+                    localStorage.setItem('selected',9)
+                }
+                if(localStorage.getItem('selected')==0){
+                    document.querySelector('#previous').setAttribute('class','d-none')
+                }
+                if(localStorage.getItem('selected')==9){
+                    document.querySelector('#next').setAttribute('class','d-none')
+                }
+            }
+            else {
+                if(JSON.parse(localStorage.getItem('Saved News')).length==0){
+                    document.querySelector('i').style.display='none'
+                }
+                else{
+                    document.querySelector('i').style.display='block'
+                }
+                if(localStorage.getItem('saved_selected')<=0){
+                    localStorage.setItem('saved_selected',0)
+                }
+                if(localStorage.getItem('saved_selected')>=JSON.parse(localStorage.getItem('Saved News')).length){
+                    localStorage.setItem('saved_selected',JSON.parse(localStorage.getItem('Saved News')).length-1)
+                }
+                if(localStorage.getItem('saved_selected')==0){
+                    document.querySelector('#previous').setAttribute('class','d-none')
+                }
+                if(localStorage.getItem('saved_selected')==JSON.parse(localStorage.getItem('Saved News')).length-1){
+                    document.querySelector('#next').setAttribute('class','d-none')
+                }
+            }
+
+        }
+    </script>
+    
+    <script type="module">
+        var news_div = document.querySelector('.news')
+        import {news_news} from './components/weather_news.js'
+        news_news()
+        var selected
+        var response
+        if(localStorage.getItem('Load Income')!='Saved News'){
+            response = await axios.request(news_api)
+        }
+       
+        import {save_news,check_if_already_saved,unsave_news} from './components/save_news.js'
+        setTimeout(()=>{
+            if(localStorage.getItem('Load Income')=='Latest News'){
+                document.querySelector('.control p').innerHTML=parseInt(localStorage.getItem('selected'))+1
+            }
+            else{
+                document.querySelector('.control p').innerHTML=parseInt(localStorage.getItem('saved_selected'))+1
+            }
+        },100)
+        if(localStorage.getItem('selected')!=null){
+            
+            if(localStorage.getItem('Load Income')=='Latest News'){
+                selected = localStorage.getItem('selected')
+                news_div.innerHTML=response.data[selected].body
+                if(response.data[selected].description == ''){
+                    document.querySelector('.news p').innerHTML = `
+                    <h2>No Title Article</h2>
+                    <p>Last Modified: ${response.data[selected].lastmodifieddate}</p>
+                    `
+                }
+                else{
+                    document.querySelector('.news p').innerHTML = `
+                    <h2>${response.data[selected].description}</h2>
+                    <p>Last Modified: ${response.data[selected].lastmodifieddate}</p>
+                    `
+                }
+            }
+            else{
+                selected = localStorage.getItem('saved_selected')
+                if(JSON.parse(localStorage.getItem('Saved News')).length>0){
+                    news_div.innerHTML=JSON.parse(localStorage.getItem('Saved News'))[selected].body
+                    if(JSON.parse(localStorage.getItem('Saved News'))[selected].description == ''){
+                        document.querySelector('.news p').innerHTML = `
+                        <h2>No Title Article</h2>
+                        <p>Last Modified: ${JSON.parse(localStorage.getItem('Saved News'))[selected].last_update}</p>
+                        `
+                    }
+                    else{
+                        document.querySelector('.news p').innerHTML = `
+                        <h2>${JSON.parse(localStorage.getItem('Saved News'))[selected].description}</h2>
+                        <p>Last Modified: ${JSON.parse(localStorage.getItem('Saved News'))[selected].last_update}</p>
+                        `
+                    }
+                }
+                else{
+                    news_div.innerHTML=`
+                    <div>
+                        <h3>Your Saved list is empty, We suggest you to read Latest News</h3>
+                    </div>
+                    `
+                }
+            }
+            
+        }
+        var article_saved = false
+        if(check_if_already_saved(response,selected)){
+            document.querySelector('.fa-bookmark').style.color="rgba(202, 39, 39, 0.75)"
+            article_saved=true
+        }
+        else{
+            document.querySelector('.fa-bookmark').style.color="rgba(0, 0, 0, 0.75)"
+            article_saved=false
+        }
+        
+        document.querySelector('.fa-bookmark').addEventListener('click',e=>{
+            if(article_saved == false){
+                if(localStorage.getItem('Load Income')=='Latest News'){
+                    alert('This article is now saved')
+                    document.querySelector('.fa-bookmark').style.color="rgba(202, 39, 39, 0.75)"
+                }
+                save_news(response,selected)
+                article_saved=true
+            }
+            else{
+                alert('This article is now removed from saved')
+                document.querySelector('.fa-bookmark').style.color="rgba(0, 0, 0, 0.75)"
+                unsave_news(response,selected)
+                article_saved=false
+            }
+        })
+    </script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+    <title>WeatherViewer | Favorites</title>
+</head>
+<body>
+    <header></header>
+    <div class="container">
+        <div class="favorites">
+            <div id="cards">
+            </div>
+        </div>
+    </div>
+    
+    <!--Script Header-->
+    <script type="module">
+        import {head} from './components/header.js'
+        document.querySelector('header').innerHTML= head()
+    </script>
+    <!--Aditional Script-->
+    <script src="./node_modules/axios/dist/axios.min.js"></script>
+    <script src="./components/add_favorites.js"></script>
+    <script src="./components/api-s.js"></script>
+    <script src="https://kit.fontawesome.com/51d87a716e.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+    <script type="module">
+        //View More function
+        function view_more(name){
+            document.querySelectorAll('a').forEach(link=>link.addEventListener('click',e=>{
+                localStorage.setItem('MyWeather',link.getAttribute('id'))
+                console.log(link.getAttribute('id'))
+                window.location='/myweather.html'
+            }))
+        }
+        var card_doc=document.querySelector('#cards')
+        var favorites = localStorage.getItem("Favorites")
+        if (favorites) { favorites = favorites.split(',') } 
+        else { favorites = [] }
+        for(let loc of favorites){ update_location(loc) }
+        import {card,forecast_card} from './components/weather_card.js'
+        //Favorites cards
+        async function update_location(loc){
+            weather_api.params.q=loc
+            var response = await axios.request(weather_api)
+            var current=response.data.current
+            var forecast=response.data.forecast.forecastday
+            card_doc.innerHTML+=card(response.data.location.name,current.temp_c,current.temp_f,current.wind_kph,current.wind_mph,current.condition.text,current.humidity,current.condition.icon)
+            
+            for(let fday of forecast){
+                var f_card=document.querySelector(`#forecast_${response.data.location.name}`)
+                f_card.innerHTML+=forecast_card(response.data.location.name,fday.day.mintemp_c,fday.day.maxtemp_c,fday.day.avgtemp_c,fday.day.mintemp_f,fday.day.maxtemp_f,fday.day.avgtemp_f,fday.day.daily_chance_of_rain,fday.day.maxwind_kph,fday.day.maxwind_mph,fday.day.condition.text,fday.day.avghumidity,fday.day.condition.icon,fday.date)   
+            }
+            view_more(response.data.location.name)
+        }
+        setTimeout(()=>{
+            if(favorites.length<1){
+            card_doc.innerHTML+=`<h3>Yor favorites list is empty! You can go to main page to add new favorite locations.<h3>`
+            }
+        },500)
+        
+    </script>
+</body>
+</html>

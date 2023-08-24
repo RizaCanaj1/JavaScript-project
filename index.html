@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+    <title>WeatherViewer</title>
+</head>
+<body>
+    <header></header>
+    <div class="container">
+        <!--Weather cards-->
+        <div class="weather_grid m-auto" id="cards">
+            <div class="card w_c mx-auto mt-4"id="add_location" style="width: 18rem; height: 13rem;">
+                <i class="fa-solid fa-plus fa-beat fa-2xl m-auto" onclick="add_search()"></i>
+                <input class="d-none" type="search" id="search_locations" placeholder="Search for location...">
+            </div>
+        </div>
+        <!--News Carousel-->
+        <div id="carouselExampleIndicators" class="carousel slide">
+            <div class="carousel-indicators">
+              <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+              <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+              <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+              <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="3" aria-label="Slide 4"></button>
+            </div>
+            <div class="carousel-inner">
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+        <div class="news_cards mt-4">
+        </div>
+        <div class="last_viewed">
+            <div class="line"></div>
+            <h5>Last Viewed:</h5>
+            <div class="last_viewed_grid"></div>
+        </div>
+    </div>
+    <!--Script Header-->
+    <script type="module">
+        import {head} from './components/header.js'
+        document.querySelector('header').innerHTML= head()
+    </script>
+    <!--Additional Script-->
+    <script src="https://kit.fontawesome.com/51d87a716e.js" crossorigin="anonymous"></script>
+    <script src="./components/api-s.js"></script>
+    <script src="./components/add_favorites.js"></script>
+    <script src="./node_modules/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+    
+    <script> 
+        var search_value = ''  
+        var search_fix = true
+        var search_show=false
+        var shown_locations = []
+        //This adds the location search (Plus button)
+        function add_search(){
+            if(search_show){
+                document.querySelector('#search_locations').style.width='50px'
+                document.querySelector('.card').style.boxShadow = '1px -1px 15px 3px rgba(0,0,0,0.75)'
+                document.querySelector('#search_locations').setAttribute('class','d-none')
+                search_show=false
+                document.querySelector('i').setAttribute('class','fa-solid fa-plus fa-beat fa-2xl m-auto')
+            }
+            else{
+                setTimeout(()=>{
+                document.querySelector('#search_locations').style.width='80%'
+                },1)
+                document.querySelector('.card').style.boxShadow = ' 1px -1px 15px 3px rgba(78, 139, 219, 0.75)'
+                document.querySelector('#search_locations').setAttribute('class','d-block')
+                document.querySelector('i').setAttribute('class','fa-solid fa-plus fa-beat fa-xl m-auto')
+                search_show=true
+            }
+        }
+        //View More function
+        function view_more(name){
+                shown_locations.forEach(loc=>document.querySelector(`a#${loc}`).addEventListener('click',e=>{
+                localStorage.setItem('MyWeather',loc.toLowerCase())
+                window.location='/myweather.html'
+            }))
+            
+        }
+        </script>
+        <script type="module">
+        
+        //Search function
+        function location_search(){
+            document.querySelector('#search_locations').addEventListener('keyup',e=>{
+                if (e.keyCode === 13&& e.target.value!='') {
+                    if(shown_locations.length<4){
+                        location=e.target.value.toLowerCase()
+                        var can_search = shown_locations.every(loc=>loc!==location)
+                        if(!can_search){
+                            alert("Location is already showing")
+                        }
+                        else{    
+                            search_fix=true
+                            active_search()
+                            upload_location()
+                            shown_locations.push(e.target.value.toLowerCase())
+                            refresh_favorites()
+                        }
+                    }
+                    else{
+                        alert("Warning, you can only view the weather for 4 regions, to view more regions add them to your favorite list")
+                    }
+                }
+            })
+        }
+        //Search from Ip
+        var location ='Pristina'
+        fetch('https://api.ipify.org/?format=json')
+        .then(response => response.json())
+        .then(data => {
+            location = data.ip
+            weather_api.params.q=location
+            show_w_from_ip()
+        })
+        .catch(error => {
+            console.log('Error fetching IP address:', error)
+        })
+        function active_search(){
+            if(search_fix){
+                setTimeout(()=>{
+                location_search()
+                },1000)
+                search_fix=false
+            }
+        }
+        active_search()
+        var response = {}
+        try {
+            response = await axios.request(weather_api)
+        } catch (error) {
+            console.log(error)
+        }
+        //Weather Cards
+        var current=response.data.current
+        async function show_w_from_ip(){
+            response = await axios.request(weather_api)
+            current=response.data.current
+            setTimeout(()=>{
+                card_doc.innerHTML+=card(response.data.location.name,current.temp_c,current.temp_f,current.wind_kph,current.wind_mph,current.condition.text,current.humidity,current.condition.icon)
+                shown_locations.push(response.data.location.name.toLowerCase())
+                view_more(response.data.location.name)
+            },300)        
+        }
+        const card_doc=document.querySelector('#cards')
+        async function upload_location(){
+            weather_api.params.q=location
+            response = await axios.request(weather_api)
+            current=response.data.current
+            card_doc.innerHTML+=card(response.data.location.name,current.temp_c,current.temp_f,current.wind_kph,current.wind_mph,current.condition.text,current.humidity,current.condition.icon)
+            view_more(response.data.location.name)
+        }
+        import {card} from './components/weather_card.js'
+        card_doc.innerHTML+=card()
+        //News cards
+        import {index_news} from './components/weather_news.js'
+        index_news()
+    </script>
+    
+</body>
+</html>

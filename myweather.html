@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+    <title>MyWeather</title>
+</head>
+<body>
+    <header></header>
+    <div class="container">
+        <div class="d-flex justify-content-center"><h3></h3></div>
+        <div class="card w_c mx-auto" id="my_weather_card" style="width: 75%">
+            <div class="card-body">
+            </div>
+            <div class="forecast">
+            </div>
+        </div>
+    </div>
+    <!--Script Header-->
+    <script type="module">
+        import {head} from './components/header.js'
+        document.querySelector('header').innerHTML= head()
+    </script>
+    <!--Additional Script-->
+    <script src="https://kit.fontawesome.com/51d87a716e.js" crossorigin="anonymous"></script>
+    <script src="./components/api-s.js"></script>
+    <script src="./node_modules/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+    <script type="module">
+        
+        try {
+            var response = await axios.request(weather_api)
+        } catch (error) {
+            console.log(error)
+        }
+        //Showing Location acording to your location
+        if(localStorage.getItem('MyWeather')==''){
+            fetch('https://api.ipify.org/?format=json')
+            .then(response => response.json())
+            .then(data => {
+            document.querySelector('.container h3').innerHTML='Acording to your Location:'
+            weather_api.params.q=data.ip
+            console.log(data.ip)
+            show_weather()
+            })
+        }
+        //Showing Location acording to your research(View more link)
+        else{
+            document.querySelector('.container h3').innerHTML='Acording to your research:'
+            weather_api.params.q=localStorage.getItem('MyWeather')
+            show_weather()
+        }
+        
+        //Weather cards
+        async function show_weather(){
+            response = await axios.request(weather_api)
+            var current=response.data.current
+            setTimeout(()=>{
+                document.querySelector('.card-body').innerHTML=`
+                <div>
+                    <h4 class="card-title">${response.data.location.name}</h4>
+                    <img title="" src="${response.data.current.condition.icon}">
+                    <h6> Condition: ${response.data.current.condition.text}</h6>
+                </div>
+                    <div>
+                        <h3>Today</h3>
+                        <p class="card-subtitle mb-2 text-body-secondary">Current Temperature : ${response.data.current.temp_c} °C / ${response.data.current.temp_f}°F</p>
+                        <p class="card-subtitle mb-2 text-body-secondary">Feels like: ${response.data.current.feelslike_c} °C / ${response.data.current.feelslike_f}°F</p>
+                        <p class="card-subtitle mb-2 text-body-secondary">Current clouds : ${response.data.current.cloud} clouds</p>
+                        
+                    </div>
+                    <div>
+                        <br/>
+                        <p class="card-subtitle mb-2 text-body-secondary"> Humidity: ${response.data.current.humidity}</p>
+                        <p class="card-subtitle mb-2 text-body-secondary">Precip : ${response.data.current.precip_in} inch / ${response.data.current.precip_mm} millimeter</p>
+                        <p class="card-subtitle mb-2 text-body-secondary"> Wind speed: ${response.data.current.wind_kph} kph / ${response.data.current.wind_mph} mph</p>
+                        <p class="card-subtitle mb-2 text-body-secondary"> Pressure: ${response.data.current.pressure_mb} millibar</p>
+                    </div>
+                `
+                for(let f_day = 0; f_day<3 ;f_day++){
+                    var forec = document.querySelector('.forecast')
+                    forec.innerHTML+=`
+                    <div class="card-body">
+                        <div>
+                            <img title="" src="${response.data.forecast.forecastday[f_day].day.condition.icon}">
+                            <h6> Condition: ${response.data.forecast.forecastday[f_day].day.condition.text}</h6>
+                        </div>
+                        <div>
+                            <h3 id='id_${f_day}'>...</h3>
+                            <p class="card-subtitle mb-2 text-body-secondary">Min Temperature : ${response.data.forecast.forecastday[f_day].day.mintemp_c} °C / ${response.data.forecast.forecastday[f_day].day.mintemp_f} °F</p>
+                            <p class="card-subtitle mb-2 text-body-secondary">Max Temperature : ${response.data.forecast.forecastday[f_day].day.maxtemp_c} °C / ${response.data.forecast.forecastday[f_day].day.maxtemp_f} °F</p>
+                            <p class="card-subtitle mb-2 text-body-secondary">Average Temperature : ${response.data.forecast.forecastday[f_day].day.avgtemp_c} °C / ${response.data.forecast.forecastday[f_day].day.avgtemp_f} °F</p>
+                        </div>
+                        <div>
+                            <br/>
+                            <p class="card-subtitle mb-2 text-body-secondary"> Average Humidity: ${response.data.forecast.forecastday[f_day].day.avghumidity}</p>
+                            <p class="card-subtitle mb-2 text-body-secondary">Chances of rain: ${response.data.forecast.forecastday[f_day].day.daily_chance_of_rain} %</p>
+                            <p class="card-subtitle mb-2 text-body-secondary"> Precip : ${response.data.forecast.forecastday[f_day].day.totalprecip_in} inch / ${response.data.forecast.forecastday[f_day].day.totalprecip_mm} millimeter</p>
+                            <p class="card-subtitle mb-2 text-body-secondary"> Max Wind speed: ${response.data.forecast.forecastday[f_day].day.maxwind_kph} kph / ${response.data.forecast.forecastday[f_day].day.maxwind_mph} mph</p>
+                        </div>
+                    </div>
+                    `
+                    setTimeout(() => {
+                        for(let title of forec.querySelectorAll('h3')){
+                            let next_days = parseInt(title.getAttribute('id').replace('id_',''))+1
+                            if(next_days==1){
+                                title.innerHTML=`Tomorrow`
+                            }
+                            else if(next_days==2) {
+                                title.innerHTML=`Following days:`
+                            }
+                            else{
+                                title.innerHTML=`-`
+                            }
+                        }
+                    }, 500)
+                }
+                
+            },200)
+        }
+    </script>
+</body>
+</html>

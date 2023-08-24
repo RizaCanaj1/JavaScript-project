@@ -1,0 +1,218 @@
+*{
+    transition: all 1s;
+}
+body{
+    background: linear-gradient(90deg, rgba(117,190,252,1) 0%, rgba(133,252,117,1) 20%, rgba(117,190,252,1) 50%, rgba(133,252,117,1) 80%, rgba(117,190,252,1) 100%);
+}
+header{
+    position:relative;
+    transition:all 0.6s;
+    z-index: 1;
+}
+.fa-beat.fa-xl{
+    rotate: 45deg;
+}
+.navbar{
+    min-height: 70px;
+    background-color: rgba(255, 255, 255, 0.75)!important;
+}
+.sticky{
+    min-height: 50px;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.85)!important;
+    position: fixed;
+}
+.line{
+    box-shadow: 1px -1px 15px 3px rgba(0,0,0,0.75);
+    display: block;
+    width: 100%;
+    height: 1px;
+    background-color: rgba(81, 81, 82, 0.658);
+}
+i{
+    transition: 1s;
+}
+.fa-plus:hover{
+    color: rgba(78, 139, 219, 0.75);
+}
+.fa-caret-left:hover,.fa-caret-right:hover{
+    color: rgba(78, 139, 219, 0.75);
+}
+.fa-bookmark:hover{
+    color: rgba(202, 39, 39, 0.75);
+}
+i.fa-trash:hover{
+    color: rgba(224, 33, 33, 0.75)!important;
+}
+.container{
+    background-color: white;
+    box-shadow: 1px -1px 15px 3px rgba(0,0,0,0.75);
+    padding-bottom: 30px;
+    border-radius: 0 0 50px 50px;
+}
+#carouselExampleIndicators{
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+.carousel-inner{
+    border-radius: 20px;
+}
+.carousel-inner h5{
+    box-shadow: 0px 0px 50px 15px rgba(0,0,0,0.75);
+}
+.card{
+    box-shadow: 0px 0px 15px 3px rgba(0,0,0,0.75);
+    transition: 1s;
+}
+#search_locations{
+    margin:auto;
+    border-radius: 50px;
+    width: 50px;
+    height: 20%;
+}
+#search_locations:hover{
+    width: 80%;
+}
+.weather_grid,.saved_list{
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+}
+.favorites #cards{
+    display: inline-block;
+}
+.favorites div[id^="forecast"]{
+    margin-bottom: 50px;
+    margin-left: 20px;
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+    gap: 30px;
+    width: 100%;
+    align-items: center;
+}
+.news_desc{
+    margin-left: 20px;
+    width: 250px;
+    border:1px solid rgb(25, 105, 226);
+    margin-bottom: 10px;
+}
+.news_desc h5{
+    margin: auto;
+    transition: 2s;
+}
+.news_desc h5:hover{
+    color: rgb(25, 105, 226);
+}
+.news_desc button{
+    width: 30px;
+    height: 80%;
+    margin :auto;
+    border: 2px dashed rgb(0, 128, 100);
+    border-radius: 0 50px 50px 0 ;
+}
+.news_cards{
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+}
+.control{
+    margin-top: 50px;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    align-items: center;
+}
+.control p{
+    font-size: 25px;
+    margin-top: 15px;
+    padding: 0px;
+}
+.last_viewed_grid{
+    display: grid;
+    grid-template-columns: auto auto auto;
+}
+#cards h3{
+    margin-left: 80px;
+}
+#my_weather_card .card-body,#my_weather_card .forecast .card-body{
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 300px 300px 300px;
+}
+
+@media screen and (max-width:1400px) {
+    #cards h3{
+        margin-left: 60px;
+    }
+    .weather_grid,.news_cards,.saved_list{
+        grid-template-columns: auto auto auto;
+    }
+    .favorites div[id^="forecast"]{
+        margin-left: 130px;
+        grid-template-columns: auto auto;
+    }
+    
+    #my_weather_card .card-body{
+        grid-template-columns: 250px 280px 270px;
+    }
+    #my_weather_card .forecast .card-body{
+        grid-template-columns: 250px 280px 270px;
+    }
+}
+@media screen and (max-width:1200px) {
+    #my_weather_card .card-body{
+        grid-template-columns: 200px 160px 240px;
+    }
+    #my_weather_card .forecast .card-body{
+        grid-template-columns: 200px 160px 240px;
+    }
+}
+@media screen and (max-width:1000px) {
+    #cards h3{
+        margin-left: 30px;
+    }
+    .weather_grid,.news_cards,.saved_list{
+        grid-template-columns: auto auto;
+    }
+    .favorites div[id^="forecast"]{
+        margin-left: 120px;
+        grid-template-columns: auto;
+    }
+    #my_weather_card .card-body{
+        grid-template-columns: 150px 160px 150px;
+    }
+    #my_weather_card .forecast .card-body{
+        grid-template-columns: 150px 160px 150px;
+    }
+    .last_viewed_grid{
+        grid-template-columns: auto auto;
+    }
+}
+@media screen and (max-width:770px) {
+    #cards h3{
+        margin-left: 15px;
+    }
+    .favorites div[id^="forecast"],.saved_list{
+        grid-template-columns: auto;
+        margin-left: 90px;
+    }
+    .weather_grid,.news_cards,.last_viewed_grid{
+        margin-left: 120px;
+        grid-template-columns: auto;
+    }
+    #my_weather_card .card-body{
+        grid-template-columns: auto;
+    }
+    #my_weather_card .forecast .card-body{
+        grid-template-columns: auto;
+    }
+}
+@media screen and (max-width:500px) {
+    #cards h3{
+        margin-left: 0px;
+    }
+    .favorites div[id^="forecast"],.saved_list{
+        margin-left: 0px;
+    }
+    .weather_grid,.news_cards,.last_viewed_grid{
+        margin-left: 0px;
+    }
+}
